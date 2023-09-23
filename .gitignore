@@ -1,0 +1,27 @@
+# Compiled class files
+target/
+
+# IDE-specific files and directories
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Maven-specific files and directories
+log/
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+release.properties
+
+# Eclipse-specific files and directories
+.settings/
+.metadata/
+
+# NetBeans-specific files and directories
+nb-configuration.xml
+/nbproject/private/
+/build/
+
+# VS Code-specific files and directories
+.vscode/
