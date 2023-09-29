@@ -1,38 +1,34 @@
-package com.axreng.backend.application;
+package com.axreng.backend.infra;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.*;
-
+import com.axreng.backend.application.protocols.Crawler;
+import com.axreng.backend.domain.model.URLAddress;
 import com.axreng.backend.util.LinkAddress;
 import com.axreng.backend.util.LinkExtractor;
 
-public class WebCrawler {
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+
+public class WebCrawler /* implements Crawler */ {
     private Queue<String> urlQueue = new LinkedList<>();
     private Set<String> visitedURLs = new HashSet<>();
     private String keyword;
     private String baseUrl;
     private LinkExtractor linkExtractor;
 
-    public static void main(String[] args) {
-        WebCrawler webCrawler = new WebCrawler("","Arceneaux");
-
-        try {
-            webCrawler.crawl(300);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public WebCrawler(String baseUrl,String keyword) {
+    public WebCrawler(String baseUrl) {
         this.linkExtractor = new LinkExtractor(baseUrl);
         this.baseUrl = baseUrl;
-        this.keyword = keyword;    
     }
 
-    public void crawl(int maxDepth) {
+     /* @Override
+    public URLAddress[] crawl(String keyword, int limit) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'crawl'");
+    } */
+
+    public void crawl(String keyword, int maxDepth) {
+        this.keyword = keyword; 
         initializeCrawl(baseUrl);
 
         while (!urlQueue.isEmpty() && maxDepth > 0) {
@@ -69,8 +65,7 @@ public class WebCrawler {
 
     private void checkForKeyword(String url, String sourceHtml) {
         if (containsKeyword(sourceHtml)) {
-            System.out.println("Keyword found: " + keyword);
-            System.out.println("Keyword found at URL: " + url);
+            printKeywordFound(url);
         }
     }
 
@@ -84,7 +79,7 @@ public class WebCrawler {
             String foundUrl = linkElement.getLinkAddress();
             if (isSameBaseUrl(foundUrl, baseUrl) && !hasVisited(foundUrl)) {
                 visitAndEnqueue(foundUrl);
-            } 
+            }
         });
     }
 
@@ -99,7 +94,11 @@ public class WebCrawler {
     private void visitAndEnqueue(String url) {
         visitedURLs.add(url);
         urlQueue.add(url);
-        System.out.println("Website found with URL: " + url);
     }
 
+    private void printKeywordFound(String url) {
+        System.out.println("Keyword found: " + keyword);
+        System.out.println("Keyword found at URL: " + url);
+    }
+    
 }
