@@ -21,4 +21,5 @@ public class InMemorySearchRepository implements SearchRepository {
         return searches.get(id.getValue());
     }
 
+    
 }

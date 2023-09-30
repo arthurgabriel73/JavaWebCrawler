@@ -20,6 +20,7 @@ public class CreateSearchUseCase {
     public Search execute(String keyword, int limit) {
         this.crawlingService = CrawlerFactory.getCrawler();
         Search search = new Search(new Keyword(keyword));
+        repository.upsert(search);
         CompletableFuture<Void> crawlCompletion = crawlingService.crawl(keyword, limit, url -> {
             search.addURL(new URLAddress(url));
             repository.upsert(search);
