@@ -4,6 +4,8 @@
 
 This application is a versatile web crawling tool designed to efficiently discover and gather information from the web based on specific keywords. What sets it apart is its capability to perform multiple searches simultaneously. This is achieved by providing partial results of the POST request on the GET route, allowing users to access ongoing search results while the application continues to crawl the web.
 
+######  * Make sure you provide a decent *limit* value. Depending on the *limit*, no URLs will be found. *
+
 ## Features
 
 1. **Keyword-Driven Web Crawling:**
