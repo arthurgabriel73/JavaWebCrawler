@@ -7,8 +7,6 @@ import com.axreng.backend.infra.http.CreateSearchController;
 import com.axreng.backend.infra.http.GetSearchController;
 import com.google.gson.Gson;
 
-
-
 public class Main {
 
     public static void main(String[] args) {
