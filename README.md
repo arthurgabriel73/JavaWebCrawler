@@ -25,6 +25,8 @@ docker run -e BASE_URL=http://example.com/ -p 4567:4567 --rm axreng/backend
 ```
 curl --request GET --url http://localhost:4567/crawl/AofnexRJ
 ```
+
+- POST a search:
 ```
 curl --request POST \
   --url 'http://localhost:4567/crawl?limit=3000' \
