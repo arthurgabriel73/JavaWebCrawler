@@ -29,7 +29,7 @@ public class Main {
             String requestBody = req.body();
             RequestBodyObject requestBodyObject = gson.fromJson(requestBody, RequestBodyObject.class);
             String keyword = requestBodyObject.keyword;
-            int limit = requestBodyObject.limit;
+            int limit = req.queryParams("limit") != null ? Integer.parseInt(req.queryParams("limit")) : 100;
             logger.info("{}Received request to create search with keyword: {} and limit: {}{}", GREEN.getCode(),
                     keyword, limit, RESET.getCode());
             return createSearchController.create(keyword, limit);
