@@ -17,17 +17,16 @@ public class CreateSearchUseCase {
         this.crawlingService = crawlingService;
     }
 
-    public CompletableFuture<Search> execute(String keyword, int limit) {
+    public Search execute(String keyword, int limit) {
         Search search = new Search(new Keyword(keyword));
-
         CompletableFuture<Void> crawlCompletion = crawlingService.crawl(keyword, limit, url -> {
             search.addURL(new URLAddress(url));
             repository.upsert(search);
         });
-
-        return crawlCompletion.thenApplyAsync(result -> {
+        crawlCompletion.thenApplyAsync(result -> {
             search.markAsDone();
             return search;
         });
+        return search;
     }
 }
