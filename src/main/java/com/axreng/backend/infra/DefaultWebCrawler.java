@@ -27,9 +27,7 @@ public class DefaultWebCrawler implements CrawlingService {
     public CompletableFuture<Void> crawl(String keyword, int maxDepth, Consumer<String> resultCallback) {
         this.keyword = keyword;
         initializeCrawl(baseUrl);
-
         CompletableFuture<Void> crawlFuture = new CompletableFuture<>();
-
         CompletableFuture.runAsync(() -> {
             int remainingDepth = maxDepth;
             while (!urlQueue.isEmpty() && remainingDepth > 0) {
