@@ -1,4 +1,4 @@
-package com.axreng.backend.application;
+package com.axreng.backend;
 
 import com.axreng.backend.infra.http.routes.SearchRoutes;
 
