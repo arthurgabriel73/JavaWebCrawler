@@ -32,7 +32,6 @@ public class DefaultWebCrawler implements CrawlingService {
 
         CompletableFuture.runAsync(() -> {
             int remainingDepth = maxDepth;
-
             while (!urlQueue.isEmpty() && remainingDepth > 0) {
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
                 processUrls(remainingDepth, futures, baseUrl, resultCallback);
