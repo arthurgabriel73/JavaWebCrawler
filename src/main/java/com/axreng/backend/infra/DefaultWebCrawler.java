@@ -40,7 +40,6 @@ public class DefaultWebCrawler implements CrawlingService {
                     String currentUrl = urlQueue.remove();
                     futures.add(CompletableFuture.runAsync(() -> {
                         String sourceHtml = fetchHTML(currentUrl);
-                        checkForKeyword(currentUrl, sourceHtml);
                         findAndEnqueueUrls(sourceHtml, baseUrl);
                         if (containsKeyword(sourceHtml)) {
                             resultCallback.accept(currentUrl);
@@ -77,12 +76,6 @@ public class DefaultWebCrawler implements CrawlingService {
         }
     }
 
-    private void checkForKeyword(String url, String sourceHtml) {
-        if (containsKeyword(sourceHtml)) {
-            printKeywordFound(url);
-        }
-    }
-
     private boolean containsKeyword(String sourceHtml) {
         return sourceHtml.toLowerCase().contains(keyword.toLowerCase());
     }
@@ -110,9 +103,4 @@ public class DefaultWebCrawler implements CrawlingService {
         urlQueue.add(url);
     }
 
-    private void printKeywordFound(String url) {
-        System.out.println("Keyword found: " + keyword);
-        System.out.println("Keyword found at URL: " + url);
-    }
-    
 }
