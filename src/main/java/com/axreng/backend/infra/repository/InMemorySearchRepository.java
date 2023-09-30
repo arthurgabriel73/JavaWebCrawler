@@ -19,8 +19,7 @@ public class InMemorySearchRepository implements SearchRepository {
 
     @Override
     public Search find(SearchID id) {
-        Search search = searches.get(id.getValue());
-        return search;
+        return searches.get(id.getValue());
     }
 
 }
