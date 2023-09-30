@@ -2,7 +2,7 @@ package com.axreng.backend.domain.model;
 
 import java.util.regex.Pattern;
 
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ValidationException;
 
 public class SearchID {
     private static final Pattern ALPHANUMERIC_PATTERN = Pattern.compile("^[a-zA-Z0-9]{8}$");
@@ -10,7 +10,7 @@ public class SearchID {
 
     public SearchID(String id) {
         if (!isValid(id)) {
-            throw new DomainException("SearchID must be an 8-character alphanumeric string.");
+            throw new ValidationException("SearchID must be an 8-character alphanumeric string.");
         }
         this.id = id;
     }

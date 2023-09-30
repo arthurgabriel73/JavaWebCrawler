@@ -2,7 +2,7 @@ package com.axreng.backend.domain.model;
 
 import org.junit.jupiter.api.Test;
 
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ApplicationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,7 +26,7 @@ class SearchStatusTest {
     @Test
     void testInvalidFromValue() {
         // Act & Assert
-        assertThrows(DomainException.class, () -> SearchStatus.fromValue("invalid"));
-        assertThrows(DomainException.class, () -> SearchStatus.fromValue(null));
+        assertThrows(ApplicationException.class, () -> SearchStatus.fromValue("invalid"));
+        assertThrows(ApplicationException.class, () -> SearchStatus.fromValue(null));
     }
 }

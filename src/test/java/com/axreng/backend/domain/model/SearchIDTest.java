@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ApplicationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,7 +27,7 @@ class SearchIDTest {
     @ValueSource(strings = {"AbCd123_", "EfGh567", "Ij Kl9012"})
     void testInvalidSearchID(String invalidId) {
         // Act & Assert
-        assertThrows(DomainException.class, () -> new SearchID(invalidId));
+        assertThrows(ApplicationException.class, () -> new SearchID(invalidId));
         
     }
 

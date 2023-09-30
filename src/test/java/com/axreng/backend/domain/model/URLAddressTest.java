@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ApplicationException;
 
 class URLAddressTest {
 
@@ -27,7 +27,7 @@ class URLAddressTest {
         String url = "invalid example";
 
         // Act & Assert
-        assertThrows(DomainException.class, () -> new URLAddress(url));
+        assertThrows(ApplicationException.class, () -> new URLAddress(url));
     }
     
     @Test
@@ -36,6 +36,6 @@ class URLAddressTest {
         String nullUrl = "";
 
         // Act & Assert
-        assertThrows(DomainException.class, () -> new URLAddress(nullUrl));
+        assertThrows(ApplicationException.class, () -> new URLAddress(nullUrl));
     }
 }

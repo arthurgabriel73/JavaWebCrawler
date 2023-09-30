@@ -1,6 +1,6 @@
 package com.axreng.backend.domain.model;
 
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ValidationException;
 
 public enum SearchStatus {
     ACTIVE("active"), DONE("done");
@@ -21,6 +21,6 @@ public enum SearchStatus {
                 return status;
             }
         }
-        throw new DomainException("Invalid SearchStatus value: " + value);
+        throw new ValidationException("Invalid SearchStatus value: " + value);
     }
 }

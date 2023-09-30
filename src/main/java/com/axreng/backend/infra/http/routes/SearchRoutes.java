@@ -2,23 +2,19 @@ package com.axreng.backend.infra.http.routes;
 
 import static spark.Spark.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.axreng.backend.domain.exceptions.DomainException;
+import com.axreng.backend.domain.exceptions.ApplicationException;
+import com.axreng.backend.domain.exceptions.SearchNotFoundException;
+import com.axreng.backend.domain.exceptions.ValidationException;
 import com.axreng.backend.infra.factory.SearchControllerFactory;
 import com.axreng.backend.infra.http.controllers.CreateSearchController;
 import com.axreng.backend.infra.http.controllers.GetSearchController;
 import com.google.gson.Gson;
 
-import static com.axreng.backend.util.AnsiColors.*;
-
 public class SearchRoutes {
-    private GetSearchController getSearchController;
-    private CreateSearchController createSearchController;
-    private Gson gson;
+    private final GetSearchController getSearchController;
+    private final CreateSearchController createSearchController;
+    private final Gson gson;
 
-    final Logger logger = LoggerFactory.getLogger(SearchRoutes.class);
     public SearchRoutes() {
         this.getSearchController = SearchControllerFactory.getSearchController();
         this.createSearchController = SearchControllerFactory.createSearchController();
@@ -27,23 +23,50 @@ public class SearchRoutes {
         get("/crawl/:id", (req, res) -> {
             String id = req.params(":id");
             try {
-                logger.info("{}Received request to get search with ID: {}{}", CYAN.getCode(), id, RESET.getCode());
-                return getSearchController.get(id);
-            } catch (DomainException e) {
-                logger.error("{}Error while getting search: {}{}", RED.getCode(), e.getMessage(), RESET.getCode());
+                return getSearchController.handle(id);
+            } catch (SearchNotFoundException e) {
                 res.status(404);
                 return gson.toJson("Search not found for ID: " + id);
+            } catch (ValidationException e) {
+                res.status(400);
+                return gson.toJson("Validation error: " + e.getMessage());
+            } catch (ApplicationException e) {
+                res.status(500);
+                return gson.toJson("Error while processing request. Please try again later.");
             }
         });
 
         post("/crawl", (req, res) -> {
             String requestBody = req.body();
-            RequestBodyObject requestBodyObject = gson.fromJson(requestBody, RequestBodyObject.class);
+            RequestBodyObject requestBodyObject;
+
+            try {
+                requestBodyObject = gson.fromJson(requestBody, RequestBodyObject.class);
+            } catch (Exception e) {
+                res.status(400);
+                return gson.toJson("Invalid JSON format in the request body");
+            }
+
+            if (requestBodyObject == null || requestBodyObject.keyword == null || requestBodyObject.keyword.trim().isEmpty()) {
+                res.status(400);
+                return gson.toJson("Keyword must be defined in the request body");
+            }
+
             String keyword = requestBodyObject.keyword;
-            int limit = req.queryParams("limit") != null ? Integer.parseInt(req.queryParams("limit")) : 100;
-            logger.info("{}Received request to create search with keyword: {} and limit: {}{}", GREEN.getCode(),
-                    keyword, limit, RESET.getCode());
-            return createSearchController.create(keyword, limit);
+
+            try {
+                int limit = req.queryParams("limit") != null ? Integer.parseInt(req.queryParams("limit")) : 100;
+                return createSearchController.handle(keyword, limit);
+            } catch (NumberFormatException e) {
+                res.status(400);
+                return gson.toJson("Invalid value for 'limit' in the query");
+            } catch (ValidationException e) {
+                res.status(400);
+                return gson.toJson("Validation error: " + e.getMessage());
+            } catch (ApplicationException e) {
+                res.status(500);
+                return gson.toJson("Error while processing request. Please try again later.");
+            }
         });
     }
 
@@ -51,5 +74,4 @@ public class SearchRoutes {
         String keyword;
         int limit;
     }
-    
 }
