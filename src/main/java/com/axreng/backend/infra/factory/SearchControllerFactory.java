@@ -3,8 +3,8 @@ package com.axreng.backend.infra.factory;
 import com.axreng.backend.application.repository.SearchRepository;
 import com.axreng.backend.application.usecase.CreateSearchUseCase;
 import com.axreng.backend.application.usecase.GetSearchUseCase;
-import com.axreng.backend.infra.http.CreateSearchController;
-import com.axreng.backend.infra.http.GetSearchController;
+import com.axreng.backend.infra.http.controllers.CreateSearchController;
+import com.axreng.backend.infra.http.controllers.GetSearchController;
 import com.axreng.backend.infra.repository.InMemorySearchRepository;
 
 public class SearchControllerFactory {

@@ -1,4 +1,4 @@
-package com.axreng.backend.infra.http;
+package com.axreng.backend.infra.http.controllers;
 
 import com.axreng.backend.application.usecase.CreateSearchUseCase;
 import com.axreng.backend.domain.dto.SearchDTO;
