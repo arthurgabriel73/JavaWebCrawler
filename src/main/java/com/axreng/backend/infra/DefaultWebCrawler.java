@@ -35,17 +35,7 @@ public class DefaultWebCrawler implements CrawlingService {
 
             while (!urlQueue.isEmpty() && remainingDepth > 0) {
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-                while (!urlQueue.isEmpty() && remainingDepth > 0) {
-                    String currentUrl = urlQueue.remove();
-                    futures.add(CompletableFuture.runAsync(() -> {
-                        String sourceHtml = fetchHTML(currentUrl);
-                        findAndEnqueueUrls(sourceHtml, baseUrl);
-                        if (containsKeyword(sourceHtml)) {
-                            resultCallback.accept(currentUrl);
-                        }
-                    }, executorService));
-                }
+                processUrls(remainingDepth, futures, baseUrl, resultCallback);
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(
                         futures.toArray(new CompletableFuture[0]));
                 try {
@@ -56,6 +46,20 @@ public class DefaultWebCrawler implements CrawlingService {
             crawlFuture.complete(null);
         }, executorService);
         return crawlFuture;
+    }
+
+    private void processUrls(int remainingDepth, List<CompletableFuture<Void>> futures, String baseUrl2,
+        Consumer<String> resultCallback) {
+            while (!urlQueue.isEmpty() && remainingDepth > 0) {
+                String currentUrl = urlQueue.remove();
+                futures.add(CompletableFuture.runAsync(() -> {
+                    String sourceHtml = fetchHTML(currentUrl);
+                    findAndEnqueueUrls(sourceHtml, baseUrl);
+                    if (containsKeyword(sourceHtml)) {
+                        resultCallback.accept(currentUrl);
+                    }
+                }, executorService));
+            }
     }
 
     private void initializeCrawl(String baseUrl) {
