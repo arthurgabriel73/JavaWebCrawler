@@ -17,7 +17,6 @@ public class CreateSearchController {
         Search search = createSearchUseCase.execute(keyword, limit);
         SearchDTO searchDTO = new SearchDTO(search);
         return gson.toJson(searchDTO);
-             
     }
     
 }
