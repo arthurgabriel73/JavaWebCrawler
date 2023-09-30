@@ -5,6 +5,7 @@ public class AppConfig {
 
     public AppConfig() {
         this.baseUrl = System.getenv("BASE_URL"); 
+       
     }
 
     public String getBaseUrl() {

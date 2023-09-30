@@ -1,45 +1,62 @@
 package com.axreng.backend.infra;
 
-import com.axreng.backend.application.protocols.Crawler;
-import com.axreng.backend.domain.model.URLAddress;
+import com.axreng.backend.application.webcrawler.CrawlingService;
 import com.axreng.backend.util.LinkAddress;
 import com.axreng.backend.util.LinkExtractor;
 
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-public class WebCrawler /* implements Crawler */ {
-    private Queue<String> urlQueue = new LinkedList<>();
+public class DefaultWebCrawler implements CrawlingService {
+    private BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>();
     private Set<String> visitedURLs = new HashSet<>();
     private String keyword;
     private String baseUrl;
     private LinkExtractor linkExtractor;
+    private ExecutorService executorService;
 
-    public WebCrawler(String baseUrl) {
+    public DefaultWebCrawler(String baseUrl, int numThreads) {
         this.linkExtractor = new LinkExtractor(baseUrl);
         this.baseUrl = baseUrl;
+        this.executorService = Executors.newFixedThreadPool(numThreads);
     }
 
-     /* @Override
-    public URLAddress[] crawl(String keyword, int limit) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'crawl'");
-    } */
-
-    public void crawl(String keyword, int maxDepth) {
-        this.keyword = keyword; 
+    public CompletableFuture<Void> crawl(String keyword, int maxDepth, Consumer<String> resultCallback) {
+        this.keyword = keyword;
         initializeCrawl(baseUrl);
 
-        while (!urlQueue.isEmpty() && maxDepth > 0) {
-            String currentUrl = urlQueue.remove();
-            String sourceHtml = fetchHTML(currentUrl);
+        CompletableFuture<Void> crawlFuture = new CompletableFuture<>();
 
-            checkForKeyword(currentUrl, sourceHtml);
-            findAndEnqueueUrls(sourceHtml, baseUrl);
+        CompletableFuture.runAsync(() -> {
+            int remainingDepth = maxDepth;
 
-            maxDepth--;
-        }
+            while (!urlQueue.isEmpty() && remainingDepth > 0) {
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+                while (!urlQueue.isEmpty() && remainingDepth > 0) {
+                    String currentUrl = urlQueue.remove();
+                    futures.add(CompletableFuture.runAsync(() -> {
+                        String sourceHtml = fetchHTML(currentUrl);
+                        checkForKeyword(currentUrl, sourceHtml);
+                        findAndEnqueueUrls(sourceHtml, baseUrl);
+                        if (containsKeyword(sourceHtml)) {
+                            resultCallback.accept(currentUrl);
+                        }
+                    }, executorService));
+                }
+                CompletableFuture<Void> allOf = CompletableFuture.allOf(
+                        futures.toArray(new CompletableFuture[0]));
+                try {
+                    allOf.get();
+                } catch (InterruptedException | ExecutionException e) {}
+                remainingDepth--;
+            }
+            crawlFuture.complete(null);
+        }, executorService);
+        return crawlFuture;
     }
 
     private void initializeCrawl(String baseUrl) {
@@ -51,14 +68,11 @@ public class WebCrawler /* implements Crawler */ {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
             StringBuilder sourceHtml = new StringBuilder();
             String inputLine;
-
             while ((inputLine = reader.readLine()) != null) {
                 sourceHtml.append(inputLine);
             }
-
             return sourceHtml.toString();
         } catch (IOException e) {
-            e.printStackTrace();
             return "";
         }
     }
