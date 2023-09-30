@@ -1,6 +1,7 @@
 package com.axreng.backend.infra.repository;
 
 import com.axreng.backend.application.repository.SearchRepository;
+import com.axreng.backend.domain.exceptions.DomainException;
 import com.axreng.backend.domain.model.Search;
 import com.axreng.backend.domain.model.SearchID;
 
@@ -18,8 +19,8 @@ public class InMemorySearchRepository implements SearchRepository {
 
     @Override
     public Search find(SearchID id) {
-        return searches.get(id.getValue());
+        Search search = searches.get(id.getValue());
+        return search;
     }
 
-    
 }
