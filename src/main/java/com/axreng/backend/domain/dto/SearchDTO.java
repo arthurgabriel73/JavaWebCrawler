@@ -1,6 +1,7 @@
 package com.axreng.backend.domain.dto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.axreng.backend.domain.model.Search;
 import com.axreng.backend.domain.model.URLAddress;
@@ -15,7 +16,7 @@ public class SearchDTO {
         this.id = search.getId().getValue();
         this.keyword = search.getKeyword().getValue();
         this.status = search.getStatus().getValue();
-        this.urls = search.getUrls().stream().map(URLAddress::getValue).toList();
+        this.urls = search.getUrls().stream().map(URLAddress::getValue).collect(Collectors.toList());
     }
 
     public String getId() {
