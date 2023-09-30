@@ -10,6 +10,9 @@ import com.axreng.backend.infra.http.controllers.CreateSearchController;
 import com.axreng.backend.infra.http.controllers.GetSearchController;
 import com.google.gson.Gson;
 
+import spark.Request;
+import spark.Response;
+
 public class SearchRoutes {
     private final GetSearchController getSearchController;
     private final CreateSearchController createSearchController;
@@ -20,54 +23,73 @@ public class SearchRoutes {
         this.createSearchController = SearchControllerFactory.createSearchController();
         this.gson = new Gson();
 
-        get("/crawl/:id", (req, res) -> {
-            String id = req.params(":id");
-            try {
-                return getSearchController.handle(id);
-            } catch (SearchNotFoundException e) {
-                res.status(404);
-                return gson.toJson("Search not found for ID: " + id);
-            } catch (ValidationException e) {
-                res.status(400);
-                return gson.toJson("Validation error: " + e.getMessage());
-            } catch (ApplicationException e) {
-                res.status(500);
-                return gson.toJson("Error while processing request. Please try again later.");
-            }
-        });
+        get("/crawl/:id", this::handleGetRequest);
 
-        post("/crawl", (req, res) -> {
-            String requestBody = req.body();
-            RequestBodyObject requestBodyObject;
+        post("/crawl", this::handlePostRequest);
+    }
 
-            try {
-                requestBodyObject = gson.fromJson(requestBody, RequestBodyObject.class);
-            } catch (Exception e) {
-                res.status(400);
-                return gson.toJson("Invalid JSON format in the request body");
-            }
+    private Object handleGetRequest(Request req, Response res) {
+        String id = req.params(":id");
+        try {
+            return getSearchController.handle(id);
+        } catch (SearchNotFoundException e) {
+            return handleSearchNotFoundException(res, "Search not found for ID: " + id);
+        } catch (ValidationException e) {
+            return handleValidationException(res, "Validation error: " + e.getMessage());
+        } catch (ApplicationException e) {
+            return handleApplicationException(res, "Error while processing request. Please try again later.");
+        }
+    }
 
-            if (requestBodyObject == null || requestBodyObject.keyword == null || requestBodyObject.keyword.trim().isEmpty()) {
-                res.status(400);
-                return gson.toJson("Keyword must be defined in the request body");
-            }
+    private Object handlePostRequest(Request req, Response res) {
+        String requestBody = req.body();
+        RequestBodyObject requestBodyObject;
 
-            String keyword = requestBodyObject.keyword;
+        try {
+            requestBodyObject = gson.fromJson(requestBody, RequestBodyObject.class);
+        } catch (Exception e) {
+            return handleException(res, 400, "Invalid JSON format in the request body");
+        }
 
-            try {
-                int limit = req.queryParams("limit") != null ? Integer.parseInt(req.queryParams("limit")) : 100;
-                return createSearchController.handle(keyword, limit);
-            } catch (NumberFormatException e) {
-                res.status(400);
-                return gson.toJson("Invalid value for 'limit' in the query");
-            } catch (ValidationException e) {
-                res.status(400);
-                return gson.toJson("Validation error: " + e.getMessage());
-            } catch (ApplicationException e) {
-                res.status(500);
-                return gson.toJson("Error while processing request. Please try again later.");
-            }
-        });
+        if (requestBodyObject == null || requestBodyObject.keyword == null
+                || requestBodyObject.keyword.trim().isEmpty()) {
+            return handleException(res, 400, "Keyword must be defined in the request body");
+        }
+
+        String keyword = requestBodyObject.keyword;
+
+        try {
+            int limit = req.queryParams("limit") != null 
+            ? Integer.parseInt(req.queryParams("limit")) 
+            : 100;
+            return createSearchController.handle(keyword, limit);
+        } catch (NumberFormatException e) {
+            return handleException(res, 400, "Invalid value for 'limit' in the query");
+        } catch (ValidationException e) {
+            return handleValidationException(res, "Validation error: " + e.getMessage());
+        } catch (ApplicationException e) {
+            return handleApplicationException(res, "Error while processing request. Please try again later.");
+        }
+    }
+
+    private Object handleSearchNotFoundException(Response res, String message) {
+        res.status(404);
+        return gson.toJson(message);
+    }
+
+    private Object handleValidationException(Response res, String message) {
+        res.status(400);
+        return gson.toJson(message);
+    }
+
+    private Object handleApplicationException(Response res, String message) {
+        res.status(500);
+        return gson.toJson(message);
+    }
+
+    private Object handleException(Response res, int statusCode, String message) {
+        res.status(statusCode);
+        return gson.toJson(message);
     }
 
     static class RequestBodyObject {
