@@ -26,7 +26,6 @@ public class CreateSearchUseCase {
         Search search = new Search(new Keyword(keyword));
         CompletableFuture<Void> crawlCompletion = crawlingService.crawl(keyword, limit, url -> {
             search.addURL(new URLAddress(url));
-            System.out.println(url);
             repository.upsert(search);
         });
         crawlCompletion.thenApplyAsync(result -> {
