@@ -61,7 +61,7 @@ public class SearchRoutes {
         try {
             int limit = req.queryParams("limit") != null 
             ? Integer.parseInt(req.queryParams("limit")) 
-            : 100;
+            : 3000;
             return createSearchController.handle(keyword, limit);
         } catch (NumberFormatException e) {
             return handleException(res, 400, "Invalid value for 'limit' in the query");
